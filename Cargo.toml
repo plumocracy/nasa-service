@@ -10,8 +10,11 @@ axum = { version = "0.8" }
 chrono = { version = "0.4.44", features = ["serde"] }
 color-eyre = "0.6.5"
 dotenvy = "0.15.7"
+reqwest = "0.13.3"
 serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
 sqlx = { version = "0.8.6", features = ["runtime-tokio-rustls", "sqlite",  "macros", "migrate"] }
 thiserror = "2.0.18"
 tokio = { version = "1.52.3", features=["full"] }
+tokio-cron-scheduler = "0.15.1"
 toml = "1.1.2"

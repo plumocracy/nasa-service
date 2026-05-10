@@ -1,6 +1,7 @@
 use std::{str::FromStr, time::Duration};
 
-use super::Config;
+use crate::config::Config;
+
 use sqlx::{
     sqlite::{SqliteConnectOptions, SqlitePoolOptions},
     SqlitePool,
@@ -14,9 +15,12 @@ pub enum DbErr {
 
     #[error("wal error: {0}")]
     WalNotEnabled(String),
+
+    #[error("Migration error!")]
+    Migrate(#[from] sqlx::migrate::MigrateError),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Database {
     pool: SqlitePool,
 }
@@ -58,5 +62,8 @@ impl Database {
         Ok(Self { pool })
     }
 
-    pub fn migrate() {}
+    pub async fn migrate(&self) -> Result<(), DbErr> {
+        sqlx::migrate!("./migrations").run(&self.pool).await?;
+        Ok(())
+    }
 }

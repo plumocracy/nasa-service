@@ -3,7 +3,7 @@ use serde::Deserialize;
 use std::fmt;
 use thiserror::Error;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Config {
     pub env: Env,
     pub db: Db,
@@ -12,13 +12,13 @@ pub struct Config {
     pub secrets: Secrets,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Env {
     pub port: u16,
     pub ip_addr: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Db {
     pub wal: bool,
     pub max_connections: u32,
@@ -26,7 +26,7 @@ pub struct Db {
     pub busy_timeout_ms: Option<u64>,
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Secrets {
     nasa_api_key: String,
     database_url: String,
