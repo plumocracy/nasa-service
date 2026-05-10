@@ -1,0 +1,17 @@
+[package]
+name = "nasa-service"
+version = "0.1.0"
+edition = "2021"
+authors = ["Plum Hill <evelynplumhill@gmail.com>"]
+
+[dependencies]
+anyhow = "1.0.102"
+axum = { version = "0.8" }
+chrono = { version = "0.4.44", features = ["serde"] }
+color-eyre = "0.6.5"
+dotenvy = "0.15.7"
+serde = { version = "1.0.228", features = ["derive"] }
+sqlx = { version = "0.8.6", features = ["runtime-tokio", "sqlite", "tls-native-tls"] }
+thiserror = "2.0.18"
+tokio = { version = "1.52.3", features=["full"] }
+toml = "1.1.2"

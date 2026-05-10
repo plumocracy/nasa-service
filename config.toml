@@ -1,0 +1,6 @@
+[env]
+port = 8080
+ip_addr = "localhost"
+
+[database]
+wal = true
