@@ -6,7 +6,7 @@ use thiserror::Error;
 #[derive(Deserialize, Debug)]
 pub struct Config {
     pub env: Env,
-    pub database: Database,
+    pub db: Db,
 
     #[serde(skip_deserializing)]
     pub secrets: Secrets,
@@ -19,7 +19,7 @@ pub struct Env {
 }
 
 #[derive(Deserialize, Debug)]
-pub struct Database {
+pub struct Db {
     pub wal: bool,
 }
 
@@ -79,6 +79,23 @@ impl Config {
     }
 }
 
+impl Secrets {
+    pub fn new(nasa_api_key: String, database_url: String) -> Secrets {
+        Secrets {
+            nasa_api_key,
+            database_url,
+        }
+    }
+
+    pub fn nasa_api_key(&self) -> &str {
+        &self.nasa_api_key
+    }
+
+    pub fn database_url(&self) -> &str {
+        &self.database_url
+    }
+}
+
 impl ConfigErr {
     pub fn env_err(name: impl Into<String>, source: std::env::VarError) -> Self {
         Self::Env {
@@ -104,7 +121,7 @@ impl fmt::Display for Secrets {
     }
 }
 
-impl fmt::Display for Database {
+impl fmt::Display for Db {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "wal?: {}", self.wal)
     }

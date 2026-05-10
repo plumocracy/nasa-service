@@ -2,5 +2,5 @@
 port = 8080
 ip_addr = "localhost"
 
-[database]
+[db]
 wal = true
