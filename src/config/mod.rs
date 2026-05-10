@@ -21,6 +21,9 @@ pub struct Env {
 #[derive(Deserialize, Debug)]
 pub struct Db {
     pub wal: bool,
+    pub max_connections: u32,
+    pub foreign_keys: bool,
+    pub busy_timeout_ms: Option<u64>,
 }
 
 #[derive(Default, Debug)]
@@ -123,7 +126,19 @@ impl fmt::Display for Secrets {
 
 impl fmt::Display for Db {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "wal?: {}", self.wal)
+        if let Some(ms) = self.busy_timeout_ms {
+            write!(
+                f,
+                "wal?: {}\nforeign_keys?: {}\nmax_conns: {}\ntimeout_ms: {}",
+                self.wal, self.foreign_keys, self.max_connections, ms
+            )
+        } else {
+            write!(
+                f,
+                "wal?: {}\nforeign_keys?: {}\nmax_conns: {}",
+                self.wal, self.foreign_keys, self.max_connections,
+            )
+        }
     }
 }
 

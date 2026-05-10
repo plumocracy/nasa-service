@@ -4,3 +4,7 @@ ip_addr = "localhost"
 
 [db]
 wal = true
+max_connections = 5
+foreign_keys = true
+busy_timeout_ms = 5000
+

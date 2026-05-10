@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{str::FromStr, time::Duration};
 
 use super::Config;
 use sqlx::{
@@ -11,6 +11,9 @@ use thiserror::Error;
 pub enum DbErr {
     #[error("sqlx error")]
     Sqlx(#[from] sqlx::Error),
+
+    #[error("wal error: {0}")]
+    WalNotEnabled(String),
 }
 
 #[derive(Debug)]
@@ -20,15 +23,39 @@ pub struct Database {
 
 impl Database {
     pub async fn connect(c: &Config) -> Result<Self, DbErr> {
-        let opts =
-            SqliteConnectOptions::from_str(c.secrets.database_url())?.create_if_missing(true);
+        let mut conn_opts = SqliteConnectOptions::from_str(c.secrets.database_url())?;
 
-        let pool = SqlitePoolOptions::new()
-            .max_connections(5)
-            .connect_with(opts)
-            .await?;
+        if let Some(ms) = c.db.busy_timeout_ms {
+            conn_opts = conn_opts.busy_timeout(Duration::from_millis(ms))
+        }
 
-        Ok(Database { pool })
+        let mut pool_opts = SqlitePoolOptions::new().max_connections(c.db.max_connections);
+
+        if c.db.foreign_keys {
+            pool_opts = pool_opts.after_connect(|conn, _meta| {
+                Box::pin(async move {
+                    sqlx::query("PRAGMA foreign_keys = ON;")
+                        .execute(&mut *conn)
+                        .await?;
+
+                    Ok(())
+                })
+            });
+        }
+
+        let pool = pool_opts.connect_with(conn_opts).await?;
+
+        if c.db.wal {
+            let row: (String,) = sqlx::query_as("PRAGMA journal_mode = WAL;")
+                .fetch_one(&pool)
+                .await?;
+
+            if row.0.to_lowercase() != "wal" {
+                return Err(DbErr::WalNotEnabled(row.0));
+            }
+        }
+
+        Ok(Self { pool })
     }
 
     pub fn migrate() {}
